@@ -15,6 +15,8 @@ return new class extends Migration
             $table->integer("ISBN");
             $table->foreign("ISBN")->references("ISBN")->on("books")->ondelete("cascade");
             $table->foreignId("category_id")->constrained("categories", "category_id")->ondelete("cascade");
+
+            $table->primary(["ISBN", "category_id"]);
         });
     }
 

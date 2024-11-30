@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requests', function (Blueprint $table) {
-            $table->id("request_id");
+        Schema::create('requisitions', function (Blueprint $table) {
+            $table->id("requisition_id");
             $table->foreignId("reader_id")->constrained("readers", "reader_id")->ondelete("cascade");
             $table->integer("ISBN");
             $table->foreign("ISBN")->references("ISBN")->on("books")->ondelete("cascade");
-            $table->string("request_status");
+            $table->string("requisition_status");
             $table->timestamp("loan_date");
             $table->datetime("return_date");
             $table->time("delay");
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requests');
+        Schema::dropIfExists('requisitions');
     }
 };
