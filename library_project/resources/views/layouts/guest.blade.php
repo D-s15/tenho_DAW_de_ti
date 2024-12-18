@@ -36,6 +36,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">{{ __('Pesquisa') }}</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">{{ __('Cesto de Compras') }}</a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ __('Área de Utilizador') }}
@@ -44,9 +47,6 @@
                                 <li><a class="dropdown-item" href="{{ route('login') }}">{{ __('Login') }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('register') }}">{{ __('Register') }}</a></li>
                             </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">{{ __('Cesto de Compras') }}</a>
                         </li>
                     </ul>
                 </div>
