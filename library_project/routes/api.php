@@ -9,4 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-#Route::middleware('auth:sanctum')->get('/api/books', [ApiController::class, 'getApi']);
+Route::middleware('auth:sanctum')->get('/api/books', [ApiController::class, 'getApi']);
