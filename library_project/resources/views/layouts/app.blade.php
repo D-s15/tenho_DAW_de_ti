@@ -19,7 +19,25 @@
     </head>
     <body class="font-sans antialiased">
         <x-banner />
-
+        <!-- Navbar -->
+        <nav class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <a href="#" class="flex items-center">
+                            <img src="/logo.png" alt="Logo" class="h-8 w-auto">
+                            <span class="ml-2 font-semibold text-gray-800">Book Request</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">Pesquisa</a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700">Área de Utilizador</a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700">Wishlist</a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700">Cesto de Compras</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
         <div class="min-h-screen bg-gray-100">
             @livewire('navigation-menu')
 
@@ -37,6 +55,35 @@
                 {{ $slot }}
             </main>
         </div>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white">
+            <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                <div class="flex justify-between">
+                    <div>
+                        <h5 class="text-lg font-semibold">Sobre Nós</h5>
+                        <p class="text-sm mt-2">Informações sobre o sistema de requisição de livros.</p>
+                    </div>
+                    <div>
+                        <h5 class="text-lg font-semibold">Links Úteis</h5>
+                        <ul class="mt-2 space-y-1 text-sm">
+                            <li><a href="#" class="hover:underline">Política de Privacidade</a></li>
+                            <li><a href="#" class="hover:underline">Termos de Serviço</a></li>
+                            <li><a href="#" class="hover:underline">Ajuda</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="text-lg font-semibold">Segue-nos</h5>
+                        <div class="flex space-x-4 mt-2">
+                            <a href="#" class="hover:text-gray-400">Facebook</a>
+                            <a href="#" class="hover:text-gray-400">Twitter</a>
+                            <a href="#" class="hover:text-gray-400">Instagram</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center text-sm mt-4">&copy; 2024 Book Request Project. Todos os direitos reservados.</div>
+            </div>
+        </footer>
 
         @stack('modals')
 
