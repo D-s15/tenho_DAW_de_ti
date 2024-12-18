@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
-            $table->integer("ISBN")->unique();
+            $table->bigInteger("ISBN")->unique();
             $table->string("title");
             $table->integer("page_number");
             $table->string("author");
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string("sinopse");
             $table->boolean("available");
             $table->integer("stock");
+            $table->timestamps();
             
         });
     }

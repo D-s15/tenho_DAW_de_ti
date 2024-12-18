@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string("password");
             $table->integer("phone_number");
             $table->boolean("blocked");
+            $table->timestamps();
         });
     }
 

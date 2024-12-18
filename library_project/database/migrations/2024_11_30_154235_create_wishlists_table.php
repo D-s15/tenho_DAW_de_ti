@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id("wishlist_id");
-            $table->integer("ISBN");
+            $table->bigInteger("ISBN");
             $table->foreign("ISBN")->references("ISBN")->on("books")->ondelete("cascade");
             $table->foreignId("reader_id")->constrained("readers", "reader_id")->onDelete("cascade");
+            $table->timestamps();
         });
     }
 
