@@ -46,9 +46,6 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">{{ __('Wishlist') }}</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="#">{{ __('Cesto de Compras') }}</a>
                         </li>
                     </ul>
