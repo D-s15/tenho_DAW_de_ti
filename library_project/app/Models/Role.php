@@ -8,6 +8,10 @@ class Role extends Model
 {
     protected $tableName ="roles";
     protected $primaryKey = "role_id";
+    protected $fillable = ['name'];
 
-    protected $fillable = [];
+    public function users()
+    {
+        return $this->hasMany(Reader::class);
+    }
 }

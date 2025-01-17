@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\ApiController;
+use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
@@ -15,75 +16,59 @@ class BookController extends Controller
         $this->apiController = $apiController;
     }
 
-    public function store(Request $request, $isbn){
-        // Chamar o método getBookData do ApiController para obter os dados
-        $bookData = $this->apiController->getBookData($isbn)->getData();
-
-        // Acessar os dados do livro usando a chave ISBN:{isbn}
-        $bookData = $bookData->{'ISBN:' . $isbn};  // Acessar a chave dinâmica
-
-        $isbnKey = null;
-
-    // Percorrer os identifiers para encontrar o ISBN correspondente
-    foreach ($bookData->identifiers as $key => $values) {
-        // Verificar se algum dos valores (isbn_10 ou isbn_13) é igual ao ISBN da URL
-        if (in_array($isbn, $values)) {
-            $isbnKey = $isbn;
-            break;  // Encerra o loop ao encontrar o ISBN
-        }
-    }
-
-    // Se não encontrou o ISBN correspondente
-    if (!$isbnKey) {
-        return redirect()->route('home')->withErrors('ISBN não encontrado entre os identifiers.');
-    }
-        // Validar os dados da API (exemplo de validação simples)
-        $validatedData = [       
-            'ISBN' => $isbnKey ?? null,
-            'title' => $bookData->title ?? '',
-            'page_number' => $bookData->number_of_pages ?? null,
-            'author' => implode(', ', array_map(function($author) {
-                return $author->name; // Usando a sintaxe de objeto
-            }, $bookData->authors ?? [])),
-            'publisher' => $bookData->publishers[0]->name ?? '',
-            'cover' => $bookData->cover->large ?? '',
-            'release_date' => $bookData->publish_date ?? '',
-            'edition' => $bookData->edition ?? 1,
-            'sinopse' => $bookData->notes ?? 'No description available',
-            'available' => true,  // Exemplo de valor padrão
-            'stock' => 10,  // Exemplo de valor padrão
-        ];
-
-        // Se algum dado essencial estiver faltando, retornar um erro
-        if (!$validatedData['ISBN'] || !$validatedData['title']) {
-            return response()->json([
-                'message' => 'Dados do livro inválidos ou incompletos.',
-                'bookData' => $bookData,
-                'book' => $validatedData
-            ], 400);
+    public function store(Request $request, $category)
+    {
+        // Fetch data from the local API endpoint
+        $book_response = Http::get("http://127.0.0.1:8000/api/books/{$category}.json");
+        
+        if ($response->failed()) {
+            return response()->json(['error' => 'Failed to fetch data from the API'], 500);
         }
 
-        // Criar um novo livro com os dados validados
-        $book = Book::create($validatedData);
+        $bookData = $response->json();
 
-        // Retornar a resposta com o livro criado
-        return response()->json([
-            'message' => 'Livro criado com sucesso!',
-            'book' => $book,
-        ], 201);
+        // Iterate through the fetched data and store it in the local database
+        foreach ($bookData['works'] as $work) {
+            $isbn = $work['availability']['isbn'] ?? null;
+
+            // Check if the book already exists in the local database
+            if (Book::where('ISBN', $isbn)->exists()) {
+                continue; // Skip if the book already exists
+            }
+
+            $author_response = Http::get("https://openlibrary.org/authors/{$work['author_key'][0]}.json")->json();
+
+            $stock = 10; // Example stock value, you can modify this as needed
+
+            $book = Book::updateOrCreate(
+                ['ISBN' => $isbn],
+                [
+                    'title' => $work['title'],
+                    'cover' => $work['cover_id'] ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-L.jpg" : null,
+                    'release_date' => $work['first_publish_year'] ?? null,
+                    'sinopse' => $work['description'] ?? 'No description available',
+                    'available' => $stock > 0,
+                    'page_number' => $work['number_of_pages'] ?? null,
+                    'edition' => $work['edition_count'] ?? null,
+                    'stock' => $stock,
+                ]
+            );
+        }
+
+        return response()->json(['message' => 'Books stored successfully!'], 201);
     }
-
 
     public function show($isbn)
     {
         $book = Book::where('ISBN', $isbn)->first();
 
         if (!$book) {
-            return redirect()->route('home')->withErrors('Livro não encontrado!');
+            return redirect()->route('home')->withErrors('Book not found!');
         }
 
         return view('books.show', ['book' => $book]);
     }
+
     /**
      * Display a listing of the resource.
      */

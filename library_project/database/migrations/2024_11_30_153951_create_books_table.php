@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
-            $table->bigInteger("ISBN")->unique();
+            $table->String("ISBN")->unique();
             $table->string("title");
-            $table->integer("page_number");
+            $table->integer("page_number")->nullable();
             $table->string("author");
             $table->string("publisher");
             $table->string("cover");
             $table->string("release_date");
-            $table->integer("edition");
+            $table->integer("edition")->nullable();
             $table->string("sinopse");
             $table->boolean("available");
             $table->integer("stock");

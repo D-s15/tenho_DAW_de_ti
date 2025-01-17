@@ -9,5 +9,10 @@ class Category extends Model
     protected $tableName ="categories";
     protected $primaryKey = "category_id";
 
-    protected $fillable = [];
+    protected $fillable = ['category_name'];
+
+    public function books()
+    {
+        return $this->belongsToMany(Book::class, 'book_category', 'category_id', 'book_id');
+    }
 }

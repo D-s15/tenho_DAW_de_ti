@@ -9,5 +9,15 @@ class BookWishlist extends Model
     protected $tableName = "Book_Wishlists";
     protected $primaryKey = ["wishlist_id", "ISBN"];
 
-    protected $fillable = [];
+    protected $fillable = ['wishlist_id', 'book_id'];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class, 'book_id');
+    }
+
+    public function wishlist()
+    {
+        return $this->belongsTo(Wishlist::class, 'wishlist_id');
+    }
 }

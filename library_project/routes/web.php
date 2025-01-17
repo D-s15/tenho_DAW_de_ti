@@ -19,6 +19,6 @@ Route::middleware([
 });
 
 Route::prefix('books')->name('books.')->group(function () {
-    Route::get('/show/{isbn}', [BookController::class, 'show'])->name('show'); // Exibir detalhes de um curso específico
-    Route::get('/store/{isbn}', [BookController::class, 'store'])->name('store');
+    Route::get('/show/{isbn}', [BookController::class, 'show'])->name('show');
+    Route::get('/store/{category}', [BookController::class, 'store'])->name('store');
 });
