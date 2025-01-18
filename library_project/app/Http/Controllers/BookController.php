@@ -19,13 +19,13 @@ class BookController extends Controller
     public function store(Request $request, $category)
     {
         // Fetch data from the local API endpoint
-        $book_response = Http::get("http://127.0.0.1:8000/api/books/{$category}.json");
+        $book_response = Http::get("http://openlibrary.org/subjects/{$category}.json");
         
-        if ($response->failed()) {
+        if ($book_response->failed()) {
             return response()->json(['error' => 'Failed to fetch data from the API'], 500);
         }
 
-        $bookData = $response->json();
+        $bookData = $book_response->json();
 
         // Iterate through the fetched data and store it in the local database
         foreach ($bookData['works'] as $work) {
@@ -35,22 +35,37 @@ class BookController extends Controller
             if (Book::where('ISBN', $isbn)->exists()) {
                 continue; // Skip if the book already exists
             }
+            
+            $author = Http::get("https://openlibrary.org/{$work['authors'][0]['key']}.json")->json();
 
-            $author_response = Http::get("https://openlibrary.org/authors/{$work['author_key'][0]}.json")->json();
+            $stock = rand(0,10); // Example stock value, you can modify this as needed
+            
+            $work_id = Http::get("https://openlibrary.org/{$work['key']}.json")->json();
 
-            $stock = 10; // Example stock value, you can modify this as needed
+            $publisher = Http::get("https://openlibrary.org/search.json?q={$work['key']}")->json();
+            
+            $edition = Http::get("https://openlibrary.org/{$work['key']}/editions.json")->json(); 
+
+            foreach ($edition['entries'] as $entry) {
+                if (isset($entry['number_of_pages'])) {
+                    $number_of_pages = $entry['number_of_pages'];
+                    break;
+                }
+            }
 
             $book = Book::updateOrCreate(
-                ['ISBN' => $isbn],
                 [
+                    'ISBN' => $isbn,
                     'title' => $work['title'],
-                    'cover' => $work['cover_id'] ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-L.jpg" : null,
+                    'page_number' => $number_of_pages,
+                    'author' => $author['name'],
+                    'publisher' => $edition['entries'][0]['publishers'][0] ?? 'Unavailable',
+                    'cover' => $work['cover_id'] ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" : 'Unavailable',
                     'release_date' => $work['first_publish_year'] ?? null,
-                    'sinopse' => $work['description'] ?? 'No description available',
-                    'available' => $stock > 0,
-                    'page_number' => $work['number_of_pages'] ?? null,
                     'edition' => $work['edition_count'] ?? null,
-                    'stock' => $stock,
+                    'sinopse' => $work_id['description']['value'] ?? 'No description available',
+                    'available' => $stock > 0,                    
+                    'stock' => $stock
                 ]
             );
         }
