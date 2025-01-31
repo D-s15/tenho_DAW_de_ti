@@ -2,48 +2,86 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class LocalApiController extends Controller
 {
-    public function getBooksData($category)
+    public function getBooksData()
+{
+    $categories = [
+        "fiction", //"Mystery", "Suspense",  
+        //"Romance", "Horror", "Adventure", "Comedy", "Cooking", 
+        //"Fantasy", "Action", "Kids", "Thriller",
+    ];
+
+    $allBooks = [];
+
+    foreach ($categories as $category) {
+        $bookResponse = Http::get("http://openlibrary.org/subjects/{$category}.json");
+
+        if ($bookResponse->failed()) {
+            logger()->error("Falha ao buscar livros para a categoria: {$category}");
+            continue;
+        }
+
+        $books = data_get($bookResponse->json(), 'works', []);
+        
+        
+        $formattedBooks = collect($books)->map(function ($work) use ($category) {
+            $workKey = data_get($work, 'key');
+            $authorKey = data_get($work, 'authors.0.key');
+
+            return [
+                'ISBN' => data_get($work, 'availability.isbn', 'Indisponível'),
+                'title' => data_get($work, 'title', 'Título Desconhecido'),
+                'page_number' => $this->fetchNumberOfPages($workKey),
+                'author' => $this->safeApiCall("https://openlibrary.org/{$authorKey}.json", 'name', 'Autor Desconhecido'),
+                'publisher' => $this->fetchPublisher($workKey),
+                'cover' => data_get($work, 'cover_id') 
+                    ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" 
+                    : 'Indisponível',
+                'release_date' => data_get($work, 'first_publish_year'),
+                'edition' => data_get($work, 'edition_count', 1),
+                'sinopse' => $this->safeApiCall("https://openlibrary.org/{$workKey}.json", 'description.value', 'Sem descrição disponível'),
+                'categories' => [$category],
+            ];
+        });
+
+        $allBooks = array_merge($allBooks, $formattedBooks->toArray());
+    }
+
+        return response()->json($allBooks);
+    }
+
+    private function safeApiCall($url, $keyPath, $default = null)
     {
-        // Fetch data from the external API
-        $response = Http::get("https://openlibrary.org/subjects/{$category}.json");
+        $response = Http::get($url);
 
         if ($response->failed()) {
-            return response()->json(['error' => 'could not access API data'], 500);
+            logger()->error("Falha ao buscar dados de {$url}");
+            return $default;
         }
 
-        $bookData = $response->json();
+        return data_get($response->json(), $keyPath, $default);
+    }
 
-        // Iterate through the fetched data and store it in the local database
-        foreach ($bookData['works'] as $work) {
-            $stock = 10; // Default stock value
-            $available = $stock > 0;
+    private function fetchPublisher($workKey)
+    {
+        $response = Http::get("https://openlibrary.org/search.json?q={$workKey}");
 
-            Book::updateOrCreate(
-                ['ISBN' => $work['cover_edition_key'] ?? null],
-                [
-                    'title' => $work['title'],
-                    'page_number' => $work['number_of_pages'] ?? null,
-                    'author' => implode(', ', array_map(function($author) {
-                        return $author['name'];
-                    }, $work['authors'] ?? [])),
-                    'cover' => $work['cover_id'] ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-L.jpg" : null,
-                    'release_date' => $work['first_publish_year'] ?? null,
-                    'sinopse' => $work['description'] ?? 'No description available',
-                    'edition' => $work['edition'] ?? null,
-                    'publisher' => implode(', ', $work['publishers'] ?? []),
-                    'available' => $available,
-                    'stock' => $stock,
-                ]
-            );
-        }
+        return $response->successful() ? data_get($response->json(), 'docs.0.publisher.0', 'Indisponível') : 'Indisponível';
+    }
 
-        return response()->json(['message' => 'Books stored successfully!'], 201);
+    private function fetchNumberOfPages($workKey)
+    {
+        $response = Http::get("https://openlibrary.org/{$workKey}/editions.json");
+
+        return collect(data_get($response->json(), 'entries', []))
+            ->pluck('number_of_pages')
+            ->filter()
+            ->first();
     }
 }
