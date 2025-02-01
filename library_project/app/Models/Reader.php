@@ -10,7 +10,7 @@ class Reader extends Model
     protected $primaryKey = "reader_id";
 
     protected $fillable = [
-        'position_id', 'email', 'name', 'password', 'phone_number'
+        'role_id', 'email', 'name', 'password', 'phone_number'
     ];
 
     public function position()

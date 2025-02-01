@@ -12,6 +12,15 @@ class WishlistSeeder extends Seeder
      */
     public function run(): void
     {
+        Schema::create('wishlists', function (Blueprint $table) {
+            $table->id('wishlist_id');
+            $table->string('reader_id');
+            $table->timestamps();
+        });
         //
+    }
+
+    public function down(){
+        Schema::dropIfExists('wishlists');
     }
 }

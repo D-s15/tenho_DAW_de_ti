@@ -12,6 +12,16 @@ class ReaderSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Schema::create('readers', function (Blueprint $table) {
+            $table->id('reader_id');
+            $table->string('name');
+            $table->string('email');
+            $table->string('password');
+            $table->string('phone_number');
+            $table->timestamps();
+        });
+    }
+        public function down(){
+            Schema::dropIfExists('readers');
     }
 }

@@ -10,7 +10,7 @@ class Requisition extends Model
     protected $primaryKey = "requisition_id";
 
     protected $fillable = [
-        'user_id', 'book_id', 'request_status', 'loan_date', 'return_date', 'delay', 'price'
+        'reader_id', 'book_id', 'request_status', 'loan_date', 'return_date', 'delay', 'price'
     ];
 
     public function user()

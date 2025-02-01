@@ -9,64 +9,75 @@ use Illuminate\Support\Facades\Http;
 class LocalApiController extends Controller
 {
     public function getBooksData()
-{
-    $categories = [
-        "fiction", //"Mystery", "Suspense",  
-        //"Romance", "Horror", "Adventure", "Comedy", "Cooking", 
-        //"Fantasy", "Action", "Kids", "Thriller",
-    ];
+    {
+        // provisório apenas para testar. A ideia é que a category seja definida pela dropdown quando o utilizador for procurar por categoria
 
-    $allBooks = [];
+        $categories = [
+            "fiction", //"Mystery", "Suspense",  
+            //"Romance", "Horror", "Adventure", "Comedy", "Cooking", 
+            //"Fantasy", "Action", "Kids", "Thriller",
+        ];
 
-    foreach ($categories as $category) {
-        $bookResponse = Http::get("https://openlibrary.org/subjects/{$category}.json");
+        $allBooks = [];
 
-        if ($bookResponse->failed()) {
-            logger()->error("Falha ao buscar livros para a categoria: {$category}");
-            continue;
+        $promises = [];
+
+        foreach ($categories as $category) {
+            $subjectUrl = "https://openlibrary.org/subjects/{$category}.json";
+            $promises[$category] = Http::async()->get($subjectUrl);
         }
 
-        $books = data_get($bookResponse->json(), 'works', []);
-
-        $formattedBooks = collect($books)->map(function ($work) use ($category) {
-            $workKey = data_get($work, 'key');
-            $authorKey = data_get($work, 'authors.0.key');
-
-            // Buscar informações da primeira edição disponível
-            $editionData = $this->fetchEditionData($workKey);
-
-            // Extrair apenas o ano do publish_date
-            $releaseYear = (function($date) {
-                if ($date) {
-                    if (preg_match('/\d{4}/', $date, $matches)) {
-                        return $matches[0];
-                    }
-                }
-                return $date;
-            })($editionData['publish_date']);
-
-            return [
-                'ISBN' => $editionData['isbn'],
-                'title' => data_get($work, 'title', 'Título Desconhecido'),
-                'page_number' => $editionData['pages'],
-                'author' => $this->safeApiCall("https://openlibrary.org{$authorKey}.json", 'name', 'Autor Desconhecido'),
-                'publisher' => $editionData['publisher'],
-                'cover' => data_get($work, 'cover_id') 
-                    ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" 
-                    : 'Indisponível',
-                'release_date' => $releaseYear,
-                'edition' => data_get($work, 'edition_count', 1),
-                'sinopse' => $this->safeApiCall("https://openlibrary.org{$workKey}.json", 'description', 'Sem descrição disponível'),
-                'categories' => [$category],
-            ];
+        $responses = collect($promises)->map(function ($promise) {
+            return $promise->wait();
         });
 
-        $allBooks = array_merge($allBooks, $formattedBooks->toArray());
+        foreach ($responses as $category => $response) {
+            if ($response->failed()) {
+                logger()->error("Falha ao buscar livros para a categoria: {$category}");
+                continue;
+            }
+
+            $bookResponse = $response->json();
+            $books = data_get($bookResponse, 'works', []);
+
+            $formattedBooks = collect($books)->map(function ($work) use ($category) {
+                $workKey = data_get($work, 'key');
+                $authorKey = data_get($work, 'authors.0.key');
+
+                // Buscar informações da primeira edição disponível
+                $editionData = $this->fetchEditionData($workKey);
+
+                // Extrair apenas o ano do publish_date
+                $releaseYear = (function($date) {
+                    if ($date) {
+                        if (preg_match('/\d{4}/', $date, $matches)) {
+                            return $matches[0];
+                        }
+                    }
+                    return $date;
+                })($editionData['publish_date']);
+
+                return [
+                    'ISBN' => $editionData['isbn'],
+                    'title' => data_get($work, 'title', 'Título Desconhecido'),
+                    'page_number' => $editionData['pages'],
+                    'author' => $this->safeApiCall("https://openlibrary.org{$authorKey}.json", 'name', 'Autor Desconhecido'),
+                    'publisher' => $editionData['publisher'],
+                    'cover' => data_get($work, 'cover_id') 
+                        ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" 
+                        : 'Indisponível',
+                    'release_date' => $releaseYear,
+                    'edition' => data_get($work, 'edition_count', 1),
+                    'sinopse' => $this->safeApiCall("https://openlibrary.org{$workKey}.json", 'description', 'Sem descrição disponível'),
+                    'categories' => [$category],
+                ];
+            });
+
+            $allBooks = array_merge($allBooks, $formattedBooks->toArray());
+        }
+
+        return response()->json($allBooks);
     }
-
-    return response()->json($allBooks);
-}
-
 
     private function safeApiCall($url, $keyPath, $default = null)
     {
@@ -82,7 +93,8 @@ class LocalApiController extends Controller
 
     private function fetchEditionData($workKey)
     {
-        $response = Http::get("https://openlibrary.org{$workKey}/editions.json");
+        $promise = Http::async()->get("https://openlibrary.org{$workKey}/editions.json");
+        $response = $promise->wait();
 
         if ($response->failed()) {
             return [
@@ -92,11 +104,6 @@ class LocalApiController extends Controller
                 'pages' => null
             ];
         }
-
-        // Opcional: Exibe a resposta para depuração
-        // echo '<pre>';
-        // print_r($response->json());
-        // echo '</pre>';
 
         $editions = data_get($response->json(), 'entries', []);
         $selectedEdition = [];
@@ -108,16 +115,16 @@ class LocalApiController extends Controller
 
         // Itera sobre as entradas e seleciona a primeira que contenha a chave "publishers"
         foreach ($editions as $edition) {
-            if (isset($edition['revision']) && !empty($edition['revision']))
+            if (isset($edition['revision']) && !empty($edition['revision']) && empty($selectedEdition))
                 $selectedEdition = $edition;
             
-            if (isset($edition['publishers']) && !empty($edition['publishers']))
+            if (isset($edition['publishers']) && !empty($edition['publishers']) && empty($selectedPublisher))
                 $selectedPublisher = $edition;
-            if (isset($edition['publish_date']) && !empty($edition['publish_date']))
+            if (isset($edition['publish_date']) && !empty($edition['publish_date']) && empty($selectedPublishDate))
                 $selectedPublishDate = $edition;
-            if (isset($edition['number_of_pages']) && !empty($edition['number_of_pages']))
+            if (isset($edition['number_of_pages']) && !empty($edition['number_of_pages']) && empty($pages))
                 $pages = $edition;
-            if ((isset($edition['isbn_13'])) && !empty($edition['isbn_13']) || (isset($edition['isbn_10']) && !empty($edition['isbn_10'])))
+            if ((isset($edition['isbn_13'])) && !empty($edition['isbn_13']) || (isset($edition['isbn_10']) && !empty($edition['isbn_10'])) && empty($isbn))
                 $isbn = $edition;
             if (!empty($selectedEdition) && !empty($selectedPublisher) && !empty($selectedPublishDate) && !empty($pages) && !empty($isbn))
                 break;

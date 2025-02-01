@@ -12,6 +12,12 @@ class BookWishlistSeeder extends Seeder
      */
     public function run(): void
     {
+        Schema::create('book_wishlist', function (Blueprint $table) {
+            $table->id('wishlist_id');
+            $table->string('ISBN');
+            $table->string('reader_id');
+            $table->timestamps();
+        });
         //
     }
 }

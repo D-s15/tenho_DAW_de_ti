@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class BookCategory extends Model
 {
     protected $tableName ="book_category";
-    protected $primaryKey ="ISBN";
+    protected $primaryKey =["ISBN", "category_id"];
 
-    protected $fillable = ['book_id', 'category_id'];
+    protected $fillable = ['category_id'];
 
     public function book()
     {

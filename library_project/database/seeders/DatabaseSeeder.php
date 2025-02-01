@@ -2,8 +2,14 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\BookCategorySeeder;
+use Database\Seeders\BookSeeder;
+use Database\Seeders\CategorySeeder;
+use Database\Seeders\ReaderSeeder;
+use Database\Seeders\RequestSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\WishlistSeeder;
+use Database\Seeders\BookWishlistSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -32,6 +38,5 @@ class DatabaseSeeder extends Seeder
             BookWishlistSeeder::class
         ]);
     }
-
     
 }
