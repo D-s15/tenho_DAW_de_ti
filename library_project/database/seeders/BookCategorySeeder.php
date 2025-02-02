@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Seeder;
 
 class BookCategorySeeder extends Seeder
@@ -12,15 +13,7 @@ class BookCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Schema::create('book_categories', function (Blueprint $table) {
-            $table->id('ISBN');
-            $table->id('category_id');
-            $table->timestamps();
-        });
-        //
+        
     }
 
-    public function down(){
-        Schema::dropIfExists('book_categories');
-    }
 }

@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
             [
             CategorySeeder::class,
             BookSeeder::class,
-            BookCategorySeeder::class,
-            RoleSeeder::class,
-            ReaderSeeder::class,
-            RequestSeeder::class,
-            WishlistSeeder::class,
-            BookWishlistSeeder::class
+            // BookCategorySeeder::class,
+            // RoleSeeder::class,
+            // ReaderSeeder::class,
+            // RequestSeeder::class,
+            // WishlistSeeder::class,
+            // BookWishlistSeeder::class
         ]);
     }
     

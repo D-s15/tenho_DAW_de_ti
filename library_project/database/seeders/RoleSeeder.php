@@ -12,15 +12,10 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id('role_id');
-            $table->string('role_name');
-            $table->timestamps();
-        });
         //
     }
 
     public function down(){
-        Schema::dropIfExists('roles');
+        
     }
 }

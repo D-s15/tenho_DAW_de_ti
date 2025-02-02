@@ -5,78 +5,74 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class LocalApiController extends Controller
 {
-    public function getBooksData()
+    public function getBooksData(Request $request, $category)
     {
-        // provisório apenas para testar. A ideia é que a category seja definida pela dropdown quando o utilizador for procurar por categoria
+        $limit = $request->query('limit', 5); // Número de itens por página
+        $offset = $request->query('offset', 0); // Offset inicial, padrão é 0
 
-        $categories = [
-            "fiction", //"Mystery", "Suspense",  
-            //"Romance", "Horror", "Adventure", "Comedy", "Cooking", 
-            //"Fantasy", "Action", "Kids", "Thriller",
-        ];
+        $subjectUrl = "https://openlibrary.org/subjects/{$category}.json?limit={$limit}&offset={$offset}";
 
-        $allBooks = [];
-
-        $promises = [];
-
-        foreach ($categories as $category) {
-            $subjectUrl = "https://openlibrary.org/subjects/{$category}.json";
-            $promises[$category] = Http::async()->get($subjectUrl);
+        $response = Http::get($subjectUrl);
+        
+        if ($response->failed()) {
+            logger()->error("Falha ao buscar dados de {$subjectUrl}");
+            return response()->json(['message' => 'Falha ao extrair dados de {$subjectUrl}'], 500);
         }
 
-        $responses = collect($promises)->map(function ($promise) {
-            return $promise->wait();
-        });
+        $bookResponse = $response->json();
+        $books = data_get($bookResponse, 'works', []);
 
-        foreach ($responses as $category => $response) {
-            if ($response->failed()) {
-                logger()->error("Falha ao buscar livros para a categoria: {$category}");
-                continue;
-            }
+        // Processar os dados dos livros
+        $formattedBooks = collect($books)->map(function ($work) {
+            $workKey = data_get($work, 'key');
+            $authorKey = data_get($work, 'authors.0.key');
 
-            $bookResponse = $response->json();
-            $books = data_get($bookResponse, 'works', []);
+            // Buscar informações da primeira edição disponível
+            $editionData = $this->fetchEditionData($workKey);
 
-            $formattedBooks = collect($books)->map(function ($work) use ($category) {
-                $workKey = data_get($work, 'key');
-                $authorKey = data_get($work, 'authors.0.key');
-
-                // Buscar informações da primeira edição disponível
-                $editionData = $this->fetchEditionData($workKey);
-
-                // Extrair apenas o ano do publish_date
-                $releaseYear = (function($date) {
-                    if ($date) {
-                        if (preg_match('/\d{4}/', $date, $matches)) {
-                            return $matches[0];
-                        }
+            // Extrair apenas o ano do publish_date
+            $releaseYear = (function($date) {
+                if ($date) {
+                    if (preg_match('/\d{4}/', $date, $matches)) {
+                        return $matches[0];
                     }
-                    return $date;
-                })($editionData['publish_date']);
+                }
+                return null;
+            })(data_get($editionData, 'publish_date'));
 
-                return [
-                    'ISBN' => $editionData['isbn'],
-                    'title' => data_get($work, 'title', 'Título Desconhecido'),
-                    'page_number' => $editionData['pages'],
-                    'author' => $this->safeApiCall("https://openlibrary.org{$authorKey}.json", 'name', 'Autor Desconhecido'),
-                    'publisher' => $editionData['publisher'],
-                    'cover' => data_get($work, 'cover_id') 
-                        ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" 
-                        : 'Indisponível',
-                    'release_date' => $releaseYear,
-                    'edition' => data_get($work, 'edition_count', 1),
-                    'sinopse' => $this->safeApiCall("https://openlibrary.org{$workKey}.json", 'description', 'Sem descrição disponível'),
-                    'categories' => [$category],
-                ];
+            $storageCategories = DB::table('categories')->pluck('category_name')->toArray();
+            $subjects = data_get($work, 'subject', []);
+            $localSubjects = array_filter($storageCategories, function ($subject) use ($work) {
+                return in_array($subject, data_get($work, 'subject', []));
             });
 
-            $allBooks = array_merge($allBooks, $formattedBooks->toArray());
-        }
+            // Reindexar o array para garantir que apenas as strings sejam retornadas
+            $localSubjects = array_values($localSubjects);
+            
+            $stock = rand(0, 10);
+            return [
+                'ISBN' => $editionData['isbn'],
+                'title' => data_get($work, 'title', 'Título Desconhecido'),
+                'page_number' => $editionData['pages'],
+                'author' => $this->safeApiCall("https://openlibrary.org{$authorKey}.json", 'name', 'Autor Desconhecido'),
+                'publisher' => $editionData['publisher'],
+                'cover' => data_get($work, 'cover_id') 
+                    ? "https://covers.openlibrary.org/b/id/{$work['cover_id']}-M.jpg" 
+                    : 'Indisponível',
+                'release_date' => $releaseYear,
+                'edition' => data_get($work, 'edition_count', 1),
+                'sinopse' => $this->safeApiCall("https://openlibrary.org{$workKey}.json", 'description', 'Sem descrição disponível'),
+                'categories' => $localSubjects,
+                'stock' => $stock,
+                'available' => $stock > 0 ? 1 : 0
+            ];
+        });
 
-        return response()->json($allBooks);
+        return response()->json($formattedBooks->toArray());
     }
 
     private function safeApiCall($url, $keyPath, $default = null)

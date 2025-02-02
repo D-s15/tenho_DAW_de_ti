@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
-    public function index(LocalApiController $localApiController)
-{
-    return $localApiController->getBooksData();
-}
-
+    public function index(Request $request, LocalApiController $localApiController)
+    {
+        $category = $request->query('category', 'action'); // Categoria padrão é 'action'
+        return $localApiController->getBooksData($request, $category);
+    }
 
     public function store(Request $request, $category)
     {    
