@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BookCategory;
 use Illuminate\Http\Request;
 
+
 class BookCategoryController extends Controller
 {
     /**

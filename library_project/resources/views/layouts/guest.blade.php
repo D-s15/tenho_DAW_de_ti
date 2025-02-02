@@ -55,7 +55,7 @@
 
         <!-- Content -->
         <div class="align-items-center">
-            {{ $slot }}
+            @yield('content')
         </div>
 
 
