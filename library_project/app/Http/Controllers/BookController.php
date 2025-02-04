@@ -10,7 +10,7 @@ class BookController extends Controller
 {
     public function index(Request $request, LocalApiController $localApiController)
     {
-        $category = $request->query('category', 'action'); // Categoria padrão é 'action'
+        $category = $request->input('category_id'); // Categoria padrão é 'action'
         return $localApiController->getBooksData($request, $category);
     }
 
