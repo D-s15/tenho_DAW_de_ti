@@ -5,6 +5,7 @@ function BookList() {
     const [books, setBooks] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
 
+    // Carregar categorias quando o componente for montado
     useEffect(() => {
         fetch('/api/categories')
             .then(response => response.json())
@@ -12,6 +13,7 @@ function BookList() {
             .catch(error => console.error('Erro ao obter categorias:', error));
     }, []);
 
+    // Carregar livros sempre que a categoria for alterada
     useEffect(() => {
         if (selectedCategory) {
             fetch(`/api/books?category=${selectedCategory}`)
@@ -19,7 +21,7 @@ function BookList() {
                 .then(data => setBooks(data))
                 .catch(error => console.error('Erro ao obter livros:', error));
         } else {
-            setBooks([]);
+            setBooks([]); // Limpar livros se não houver categoria selecionada
         }
     }, [selectedCategory]);
 
@@ -45,29 +47,31 @@ function BookList() {
                 </div>
             </section>
 
-            <section className="mb-5">
-                <h2 className="fw-bold mb-4">Livros</h2>
-                <div className="row row-cols-1 row-cols-md-4 g-4" id="books">
-                    {books.map((book) => (
-                        <div className="col" key={book.ISBN}>
-                            <div className="card h-100">
-                                <img src={book.cover} className="card-img-top" alt="Book Cover" />
-                                <div className="card-body">
-                                    <h5 className="card-title">{book.title}</h5>
-                                    <p className="card-text">{book.author}</p>
-                                    <p className="card-text"><strong>ISBN:</strong> {book.ISBN}</p>
-                                    <p className="card-text"><strong>Páginas:</strong> {book.page_number}</p>
-                                    <p className="card-text"><strong>Editora:</strong> {book.publisher}</p>
-                                    <p className="card-text"><strong>Data de Lançamento:</strong> {book.release_date}</p>
-                                    <p className="card-text"><strong>Sinopse:</strong> {book.sinopse}</p>
-                                    <p className="card-text"><strong>Estoque:</strong> {book.stock}</p>
-                                    <p className="card-text"><strong>Disponível:</strong> {book.available ? 'Sim' : 'Não'}</p>
+            {selectedCategory && (
+                <section className="mb-5">
+                    <h2 className="fw-bold mb-4">Livros</h2>
+                    <div className="row row-cols-1 row-cols-md-4 g-4" id="books">
+                        {books.map((book) => (
+                            <div className="col" key={book.ISBN}>
+                                <div className="card h-100">
+                                    <img src={book.cover} className="card-img-top" alt="Book Cover" />
+                                    <div className="card-body">
+                                        <h5 className="card-title">{book.title}</h5>
+                                        <p className="card-text">{book.author}</p>
+                                        <p className="card-text"><strong>ISBN:</strong> {book.ISBN}</p>
+                                        <p className="card-text"><strong>Páginas:</strong> {book.page_number}</p>
+                                        <p className="card-text"><strong>Editora:</strong> {book.publisher}</p>
+                                        <p className="card-text"><strong>Data de Lançamento:</strong> {book.release_date}</p>
+                                        <p className="card-text"><strong>Sinopse:</strong> {book.sinopse}</p>
+                                        <p className="card-text"><strong>Estoque:</strong> {book.stock}</p>
+                                        <p className="card-text"><strong>Disponível:</strong> {book.available ? 'Sim' : 'Não'}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }

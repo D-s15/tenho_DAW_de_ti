@@ -12,8 +12,13 @@ class CategoryController extends Controller
      */
     public function index()
     {
+        
+        return view('welcome'); 
+    }
+
+    public function getCategories(){
         $categories = Category::all();
-        return view('welcome', ['categories' => $categories]);
+        return response()->json($categories);
     }
 
     /**

@@ -21,9 +21,11 @@ Route::middleware([
 
 Route::get('/', [BookController::class, 'index'])->name('home');
 
+Route::get('/', [CategoryController::class, 'index'])->name('home');
+
+/* 
 Route::prefix('books')->name('books.')->group(function () {
     Route::get('/show/{isbn}', [BookController::class, 'show'])->name('show');
     Route::get('/store/{category}', [BookController::class, 'store'])->name('store');
-});
-
-Route::get('/', [CategoryController::class, 'index'])->name('home');
+});~
+*/

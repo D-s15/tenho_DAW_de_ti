@@ -12,4 +12,4 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/fetch-books', [LocalApiController::class, 'getBooksData']);
-Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'getCategories']);
