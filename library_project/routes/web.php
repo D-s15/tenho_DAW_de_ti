@@ -5,9 +5,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CategoryController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [CategoryController::class, 'index'])->name('home');
 
 Route::middleware([
     'auth:sanctum',
@@ -19,9 +17,7 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/', [BookController::class, 'index'])->name('home');
-
-Route::get('/', [CategoryController::class, 'index'])->name('home');
+Route::get('/books', [BookController::class, 'index'])->name('home');
 
 /* 
 Route::prefix('books')->name('books.')->group(function () {

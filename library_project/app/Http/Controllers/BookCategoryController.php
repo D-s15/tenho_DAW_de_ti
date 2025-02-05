@@ -8,6 +8,46 @@ use Illuminate\Http\Request;
 
 class BookCategoryController extends Controller
 {
+
+    public function associateBookToCategory(Request $request)
+    {
+        $validated = $request->validate([
+            'ISBN' => 'required|string|exists:books,ISBN',
+            'category_id' => 'required|integer|exists:categories,category_id'
+        ]);
+
+        // Verificar se a associação já existe
+        $exists = DB::table('book_category')
+            ->where('ISBN', $validated['ISBN'])
+            ->where('category_id', $validated['category_id'])
+            ->exists();
+
+        if (!$exists) {
+            DB::table('book_category')->insert([
+                'ISBN' => $validated['ISBN'],
+                'category_id' => $validated['category_id'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);    
+        }
+
+        return response()->json(['message' => 'Associação criada com sucesso.'], 201);
+    }
+
+    public function getBooksByCategory($categoryId)
+    {
+        $books = DB::table('books')
+            ->join('book_category', 'books.ISBN', '=', 'book_category.ISBN')
+            ->where('book_category.category_id', $categoryId)
+            ->select('books.*')
+            ->get();
+
+        if ($books->isEmpty()) {
+            return response()->json(['message' => 'Nenhum livro encontrado para esta categoria.'], 404);
+        }
+
+        return response()->json($books);
+    }
     /**
      * Display a listing of the resource.
      */
