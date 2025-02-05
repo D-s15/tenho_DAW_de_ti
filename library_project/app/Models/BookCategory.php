@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookCategory extends Model
 {
-    protected $tableName ="book_category";
+    protected $tableName ="book_categories";
     protected $primaryKey =["ISBN", "category_id"];
 
-    protected $fillable = ['category_id'];
+    public $incrementing = false;
+
+    protected $fillable = ['ISBN','category_id'];
 
     public function book()
     {

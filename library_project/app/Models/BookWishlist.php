@@ -9,6 +9,8 @@ class BookWishlist extends Model
     protected $tableName = "Book_Wishlists";
     protected $primaryKey = ["wishlist_id", "ISBN"];
 
+    public $incrementing = false;
+    
     protected $fillable = ['wishlist_id', 'book_id'];
 
     public function book()

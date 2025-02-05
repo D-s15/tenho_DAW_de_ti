@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Api\LocalApiController;
@@ -11,12 +12,12 @@ class BookController extends Controller
 {
     public function index(Request $request, LocalApiController $localApiController)
     {
-        $category = $request->input('category_id');
-        
+        $category = strtolower($request->input('category_id'));
+        //$categoriaExistente = Categoria::whereRaw('LOWER(nome) = ?', [$categoria])->first();
+        $categoriaExistente = Category::whereRaw('LOWER(category_name) = ?', [$category])->first();
         if (!$category) {
             return response()->json(['message' => 'Categoria não especificada.'], 400);
         }
-
         return $localApiController->getBooksData($request, $category);
     }
 

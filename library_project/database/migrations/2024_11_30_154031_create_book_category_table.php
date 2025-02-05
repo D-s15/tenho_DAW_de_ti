@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('book_category', function (Blueprint $table) {
+        Schema::create('book_categories', function (Blueprint $table) {
             $table->String("ISBN");
             $table->foreign("ISBN")->references("ISBN")->on("books")->ondelete("cascade");
             $table->foreignId("category_id")->constrained("categories", "category_id")->ondelete("cascade");
