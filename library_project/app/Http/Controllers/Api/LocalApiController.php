@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\BookCategory;
+use App\Models\Category;
 
 class LocalApiController extends Controller
 {
@@ -63,21 +64,21 @@ class LocalApiController extends Controller
                 ];
 
                 $book = Book::updateOrCreate(['ISBN' => $editionData['isbn']],$data);
-
                 
-                
-                    foreach ($work['subjects'] as $categoryName) {
+                    foreach ($work['subject'] as $categoryName) {
                         // Verificar se a categoria existe na base de dados
-                        $category = Category::where('name', $categoryName)->exists();
+                        $categoryExists = Category::where('category_name', $categoryName)->exists();
 
-                        logger()->info('Categoria encontrada:', ['category' => $category]);
+                        //logger()->info('Categoria encontrada:', ['category' => $categoryExists]);
                         
-                        if ($category) {
+                        if ($categoryExists) {
                             // Associar o livro à categoria encontrada
+                            $category = Category::where('category_name', $categoryName)->first();
+                            //logger()->info('Categoria encontrada:', ['category' => $category, 'book' => $book->ISBN]);
                             BookCategory::updateOrCreate(
-                                ['ISBN' => $book->ISBN, 'category_id' => $category->vategory_id]
+                                ['ISBN' => $book->ISBN, 'category_id' => $category->category_id]
                             );
-                            logger()->info('Associação criada:', ['ISBN' => $book->ISBN, 'category_id' => $category->category_id]);
+                            //logger()->info('Associação criada:', ['ISBN' => $book->ISBN, 'category_id' => $category->category_id]);
                         }
                 }
                 return $book;
