@@ -13,6 +13,7 @@ use App\Models\Category;
 
 class LocalApiController extends Controller
 {
+    private $book;
     public function getBooksData(Request $request, $category)
     {
         $limit = $request->query('limit', 5);
@@ -20,13 +21,12 @@ class LocalApiController extends Controller
 
         $subjectUrl = "https://openlibrary.org/subjects/{$category}.json?limit={$limit}&offset={$offset}";
         
-
+        logger()->info("url: ", [$subjectUrl]);
         $response = Http::get($subjectUrl);
-
+        
         if ($response->failed()) {
             return response()->json(['message' => "Falha ao extrair dados de {$subjectUrl}"], 500);
         }
-
 
         $bookResponse = $response->json();
         $books = data_get($bookResponse, 'works', []);
@@ -36,7 +36,7 @@ class LocalApiController extends Controller
             $editionData = $this->fetchEditionData($workKey);
             
             $bookExists = Book::where('ISBN', $editionData['isbn'])->exists();
-
+        
             if(!$bookExists) {
                 $authorKey = data_get($work, 'authors.0.key');
 
@@ -48,6 +48,7 @@ class LocalApiController extends Controller
 
                 })(data_get($editionData, 'publish_date'));
                 
+                logger()->info("release year: ", [$releaseYear]);
                 $data =['ISBN' => $editionData['isbn'],
                             'title' => data_get($work, 'title', 'Título Desconhecido'),
                             'page_number' => $editionData['pages'],
@@ -62,31 +63,31 @@ class LocalApiController extends Controller
                             'stock' => rand(0, 10),
                             'available' => rand(0, 10) > 0 ? 1 : 0
                 ];
+                logger()->info("data: ", $data);
 
-                $book = Book::updateOrCreate(['ISBN' => $editionData['isbn']],$data);
+                $this->book = Book::updateOrCreate(['ISBN' => $editionData['isbn']],$data);
                 
-                    foreach ($work['subject'] as $categoryName) {
-                        // Verificar se a categoria existe na base de dados
-                        $categoryExists = Category::where('category_name', $categoryName)->exists();
-
-                        //logger()->info('Categoria encontrada:', ['category' => $categoryExists]);
-                        
-                        if ($categoryExists) {
-                            // Associar o livro à categoria encontrada
-                            $category = Category::where('category_name', $categoryName)->first();
-                            //logger()->info('Categoria encontrada:', ['category' => $category, 'book' => $book->ISBN]);
-                            BookCategory::updateOrCreate(
-                                ['ISBN' => $book->ISBN, 'category_id' => $category->category_id]
-                            );
-                            //logger()->info('Associação criada:', ['ISBN' => $book->ISBN, 'category_id' => $category->category_id]);
-                        }
+                logger()->info("this book: ", [$this->book]);
+                $existingCategories = Category::whereIn('category_name', $work['subject'])->pluck('category_id');
+                
+                logger()->info("categories: ", [$existingCategories]);
+                    foreach ($existingCategories as $categoryId) {
+                    $associate = BookCategory::updateOrCreate(
+                    ['ISBN' => $this->book->ISBN, 'category_id' => $categoryId]
+                    );
+                    logger()->info("dados do livro: ", $associate);    
                 }
-                return $book;
-            }
+                    
+                }
+                
+                logger()->info("livro: ", $this->book);
+
+                return $this->book;
             
             });
 
         logger()->info('Livros formatados:', $formattedBooks->toArray());
+
 
         return response()->json($formattedBooks->toArray());
     }

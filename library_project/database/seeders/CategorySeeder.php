@@ -15,15 +15,15 @@ class CategorySeeder extends Seeder
     public function run(): void
     {   
         $categories = [
-            "Fiction", "Mystery", "Suspense",  
-            "Romance", "Horror", "Adventure", "Comedy", "Cooking", 
-            "Fantasy", "Action", "Kids", "Thriller", "Science Fiction",
-            "Biography", "History", "Self-Help", "Religion", "Science", 
-            "Sports", "Business", "Economics", "Politics", "Education", 
-            "Technology", "Engineering", "Mathematics", "Medicine", 
-            "Photography", "Fashion", "Comics", "Manga", 
-            "Poetry", "Short Stories", "Paranormal", 
-            "Supernatural", "Western", "Urban"
+            "fiction", "mystery", "suspense",  
+            "romance", "horror", "adventure", "comedy", "cooking", 
+            "fantasy", "action", "kids", "thriller", "science fiction",
+            "biography", "history", "self-help", "religion", "science", 
+            "sports", "business", "economics", "politics", "education", 
+            "technology", "engineering", "mathematics", "medicine", 
+            "photography", "fashion", "comics", "manga", 
+            "poetry", "short stories", "paranormal", 
+            "supernatural", "western", "urban"
         ];
 
         foreach ($categories as $c)
