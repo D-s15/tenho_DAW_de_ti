@@ -8,6 +8,10 @@ class Book extends Model
 {
     protected $table = 'books';
 
+protected $primaryKey = 'ISBN';
+public $incrementing = false;
+protected $keyType = 'int'; // or 'int' if ISBN is numeric
+
     protected $fillable = [
         'ISBN',
         'title',

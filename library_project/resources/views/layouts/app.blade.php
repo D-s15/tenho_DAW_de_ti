@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livros</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="scripts" href="{{ asset('js/app.js') }}">
 </head>
 <body class="bg-gray-200">
     <!-- Cabeçalho -->
@@ -26,7 +28,7 @@
     </header>
 
     <!-- Content Section -->
-    <main class="container my-4">
+    <main class="my-4" style="width:100%; padding-top:90px; padding-bottom:60px;">
         @yield('content')
     </main>
 

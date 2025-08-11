@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Eloquent;
+use App\Models\Book;
+use App\Models\Category;
+use App\Models\Wishlist;
+use App\Models\Request as BookRequest;
 
 class BookController extends Controller
 {
@@ -11,8 +16,9 @@ class BookController extends Controller
      */
     public function index()
     {
-         $books = Book::with(['categories', 'wishlists', 'requests'])->get();
-        return response()->json($books);
+         $books = Book::all();
+            
+        return view('welcome', compact('books'));
     }
 
     /**

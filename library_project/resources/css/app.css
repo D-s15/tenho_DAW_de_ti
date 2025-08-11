@@ -16,12 +16,19 @@ body {
     background-color: #e5e5e5;
 }
 
-header {
+/* Header fixo */
+.site-header {
     background-color: #5c5555;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .logo {
@@ -46,19 +53,79 @@ header {
     cursor: pointer;
 }
 
-main {
-    padding: 20px;
+/* Espaço para não sobrepor o header */
+.site-main {
+    padding: 80px 20px 20px;
 }
 
+/* Grid dos livros */
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* Sempre 4 colunas no desktop */
     gap: 20px;
-    justify-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* Responsividade para tablets e telemóveis */
+@media (max-width: 1024px) {
+    .book-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .book-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
 .book {
-    width: 100px;
-    height: 150px;
+    width: 100%;
+    max-width: none;
     background-color: #333;
+    color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.book:hover {
+    transform: translateY(-4px);
+}
+
+.book img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.book h3 {
+    font-size: 1rem;
+    margin: 8px 0 4px;
+}
+
+.book p {
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    color: #ddd;
+}
+
+/* Rodapé fixo */
+.site-footer {
+    background-color: gray;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
