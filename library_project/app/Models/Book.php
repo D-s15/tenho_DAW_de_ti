@@ -6,29 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
-    
-    protected $tableName ="books";
-    protected $primaryKey ="ISBN";
-    public $incrementing = false;
-    protected $keyType = 'string';
+    protected $table = 'books';
 
     protected $fillable = [
-        'ISBN', 'title', 'page_number', 'author', 'publisher', 'cover', 'release_date', 
-        'edition', 'sinopse', 'available', 'stock'
+        'ISBN',
+        'title',
+        'author',
+        'publisher',
+        'publication_year',
+        'description',
+        'cover_image',
     ];
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'book_category', 'book_id', 'category_id');
+        return $this->belongsToMany(Category::class, 'book_categories', 'book_ISBN', 'category_id');
     }
 
     public function wishlists()
     {
-        return $this->belongsToMany(Wishlist::class, 'book_wishlist', 'book_id', 'wishlist_id');
+        return $this->belongsToMany(LibraryUser::class, 'book_wishlists', 'book_id', 'library_user_id');
     }
 
-    public function requisitions()
+    public function Requests()
     {
-        return $this->hasMany(Requisition::class);
+        return $this->belongsToMany(Requests::class, 'book_requests', 'book_id', 'request_id'); 
     }
 }

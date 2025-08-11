@@ -1,6 +1,0 @@
-// ...existing code...
-$author = Http::get("https://openlibrary.org/{$work['authors'][0]['key']}.json")->json();
-echo '<pre>';
-print_r($author);
-echo '</pre>';
-// ...existing code...

@@ -2,26 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\CategoryController;
 
-
-Route::get('/', [CategoryController::class, 'index'])->name('home');
-
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+Route::get('/', function () {
+    return view('welcome');
 });
 
-Route::get('/books', [BookController::class, 'index'])->name('home');
-
-/* 
-Route::prefix('books')->name('books.')->group(function () {
-    Route::get('/show/{isbn}', [BookController::class, 'show'])->name('show');
-    Route::get('/store/{category}', [BookController::class, 'store'])->name('store');
-});~
-*/
+Route::prefix('books')->name('books.')->controller(BookController::class)->group(function () {
+    Route::get('/', 'index')->name('index');           // Lista todos os livros
+    Route::get('/create', 'create')->name('create');   // Formulário de criação
+    Route::post('/', 'store')->name('store');          // Armazena novo livro
+    Route::get('/{book}', 'show')->name('show');       // Mostra um livro específico
+    Route::get('/{book}/edit', 'edit')->name('edit');  // Formulário de edição
+    Route::put('/{book}', 'update')->name('update');   // Atualiza livro
+    Route::delete('/{book}', 'destroy')->name('destroy'); // Apaga livro
+});
