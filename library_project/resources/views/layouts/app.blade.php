@@ -21,9 +21,9 @@
             </div>
             
             <!-- Botões -->
-            <button class="bg-white px-3 py-1">user area</button>
-            <button class="bg-white px-3 py-1">wishlist</button>
-            <button class="bg-white px-3 py-1">login</button>
+            <a class="bg-white px-3 py-1">user area</a>
+            <a class="bg-white px-3 py-1">wishlist</a>
+            <a class="bg-white px-3 py-1" href="{{route('users.login')}}" >login</a>
         </div>
     </header>
 
