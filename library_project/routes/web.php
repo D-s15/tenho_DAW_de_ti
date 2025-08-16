@@ -18,5 +18,6 @@ Route::prefix('books')->name('books.')->controller(BookController::class)->group
 
 Route::prefix('users')->name('users.')->controller(LibraryUserController::class)->group(function () {
     Route::view('login', 'users.login')->name('login'); // Formulário de login
-    Route::view('register', 'users.register')->name('register');   // Formulário de criação
+    Route::view('register', 'users.register')->name('register'); // Formulário de registro
+    Route::post('register', 'create')->name('register');   // Formulário de criação
 });

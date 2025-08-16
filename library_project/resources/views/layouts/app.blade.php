@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livros</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="scripts" href="{{ asset('js/app.js') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 <body class="bg-gray-200">
     <!-- Cabeçalho -->
@@ -29,13 +29,13 @@
 
     <!-- Content Section -->
     <main class="my-4" style="width:100%; padding-top:90px; padding-bottom:60px;">
-        @yield('content')
+            
+    @yield('content')
     </main>
 
     <!-- Footnote Section -->
     <footer style="background-color: gray; color: white; text-align: center; padding: 10px; position: fixed; bottom: 0; width:100%">
         <p>AS © 2020 ESTIG / IPBeja all rights reserved</p>
     </footer>
-
 </body>
 </html>

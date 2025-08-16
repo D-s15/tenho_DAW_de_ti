@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Eloquent;
+use App\Models\LibraryUser as Lib_User;
 
 class LibraryUserController extends Controller
 {
@@ -17,9 +19,21 @@ class LibraryUserController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'email'             => 'required|string|unique:library_users,email',
+            'name'            => 'required|string|max:255',
+            'password'        => 'required|string|min:8|confirmed',
+            'phone'          => 'nullable|string|max:15',
+        ])->merge([
+            'password' => bcrypt($request->password), // Encrypt the password
+        ]) + ['user_type' => 'reader'];
+
+        #dd($validated);
+        $lib_user =Lib_User::create($validated);
+
+        return response()->json($lib_user, 201);
     }
 
     /**

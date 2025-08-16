@@ -4,6 +4,7 @@
 
 <form action="{{ route('users.login') }}" method="POST" class="max-w-md mx-auto bg-white p-6 rounded shadow">
 
+    @csrf
     <label for="username">username:</label>
     <br>
     <input type="text" name="username" id="username" placeholder="Username" class="border border-gray-400 rounded px-2 py-1 outline-none">
