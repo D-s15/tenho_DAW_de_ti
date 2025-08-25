@@ -3,17 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class LibraryUser extends Model
+class LibraryUser extends Authenticatable
 {
+    use Notifiable;
     protected $table = 'library_users';
 
     protected $fillable = [
         'user_type',
-        'name',
+        'username',
         'email',
         'password',
         'phone',
+    ];
+
+     protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     public function wishlists()

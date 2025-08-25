@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Eloquent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\LibraryUser as Lib_User;
 
 class LibraryUserController extends Controller
@@ -23,17 +24,47 @@ class LibraryUserController extends Controller
     {
         $validated = $request->validate([
             'email'             => 'required|string|unique:library_users,email',
-            'name'            => 'required|string|max:255',
+            'username'            => 'required|string|max:255',
             'password'        => 'required|string|min:8|confirmed',
             'phone'          => 'nullable|string|max:15',
-        ])->merge([
-            'password' => bcrypt($request->password), // Encrypt the password
-        ]) + ['user_type' => 'reader'];
+        ]);
 
-        #dd($validated);
+        $validated = array_merge($validated, [
+            'password'  => bcrypt($request->password), // Encriptar a password
+            'user_type' => 'reader',
+            'phone'    => '+351 ' . $request->phone
+        ]);
+
         $lib_user =Lib_User::create($validated);
 
-        return response()->json($lib_user, 201);
+       return redirect()->route('home')->with('success', 'Registo efetuado com sucesso!');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'username'    => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::guard('library')->attempt($credentials)) {
+                $request->session()->regenerate();
+                return redirect('/')->with('success', 'Login efetuado com sucesso!');
+        }
+
+
+        return back()->withErrors([
+            'username' => 'As credenciais não correspondem aos nossos registos.',
+        ])->onlyInput('username');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('library')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Sessão terminada.');
     }
 
     /**

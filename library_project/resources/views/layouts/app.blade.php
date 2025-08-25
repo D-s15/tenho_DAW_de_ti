@@ -21,9 +21,20 @@
             </div>
             
             <!-- Botões -->
-            <a class="bg-white px-3 py-1">user area</a>
-            <a class="bg-white px-3 py-1">wishlist</a>
-            <a class="bg-white px-3 py-1" href="{{route('users.login')}}" >login</a>
+             @auth('library')
+            <!-- Mostra apenas quando logado -->
+            <a class="bg-white px-3 py-1" href="{{route('users.profile')}}">Perfil</a>
+            <a class="bg-white px-3 py-1">Wishlist</a>
+        
+            <!-- Botão de logout -->
+            <form action="{{ route('users.logout') }}" method="POST" class="inline">
+            @csrf
+                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded">Logout</button>
+            </form>
+        @else
+            <!-- Mostra apenas quando NÃO logado -->
+            <a class="bg-white px-3 py-1" href="{{ route('users.login.form') }}">Login</a>
+        @endauth
         </div>
     </header>
 

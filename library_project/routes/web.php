@@ -4,10 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\LibraryUserController;
 
-Route::get('/', [BookController::class, 'index']);
+Route::get('/', [BookController::class, 'index'])->name('home');
 
 Route::prefix('books')->name('books.')->controller(BookController::class)->group(function () {
-    Route::get('welcome', 'index')->name('index');           // Lista todos os livros
     Route::get('/create', 'create')->name('create');   // Formulário de criação
     Route::post('/', 'store')->name('store');          // Armazena novo livro
     Route::get('/{book}', 'show')->name('show');       // Mostra um livro específico
@@ -17,7 +16,16 @@ Route::prefix('books')->name('books.')->controller(BookController::class)->group
 });
 
 Route::prefix('users')->name('users.')->controller(LibraryUserController::class)->group(function () {
-    Route::view('login', 'users.login')->name('login'); // Formulário de login
-    Route::view('register', 'users.register')->name('register'); // Formulário de registro
-    Route::post('register', 'create')->name('register');   // Formulário de criação
+    Route::view('login', 'users.login')->name('login.form'); // Mostra formulário
+    Route::post('login', 'login')->name('login');            // Processa login
+
+    Route::view('register', 'users.register')->name('register.form');
+    Route::post('register', 'create')->name('register');
+    
+    Route::post('logout', 'logout')->name('logout'); // Terminar sessão
+
+    Route::middleware('auth:library')->get('profile', function () {
+        return view('users.profile');
+    })->name('profile');
 });
+

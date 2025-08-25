@@ -18,4 +18,21 @@
     <p class="mt-2">Don't have an account? <a href="{{ route('users.register') }}" class="text-blue-500">Register here</a></p>
 
 </form>
+
+@if ($errors->any())
+    <div class="bg-red-200 text-red-700 p-2 rounded mb-4">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('success'))
+    <div class="bg-green-200 text-green-700 p-2 rounded mb-4">
+        {{ session('success') }}
+    </div>
+@endif
+
 @endsection

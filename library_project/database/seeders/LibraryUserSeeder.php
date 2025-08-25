@@ -15,7 +15,7 @@ class LibraryUserSeeder extends Seeder
     {
         DB::table('library_users')->insert([
             [
-                'name' => 'Alice Johnson',
+                'username' => 'Alice Johnson',
                 'email' => 'alice@example.com',
                 'password' => bcrypt('password123'),
                 'phone' => '+351 123 456 789',
@@ -23,7 +23,7 @@ class LibraryUserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Bob Smith',
+                'username' => 'Bob Smith',
                 'email' => 'bob@example.com',
                 'password' => bcrypt('password123'),
                 'phone' => '+351 987 654 321',
@@ -31,7 +31,7 @@ class LibraryUserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Charlie Brown',
+                'username' => 'Charlie Brown',
                 'email' => 'charlie@example.com',
                 'password' => bcrypt('password123'),
                 'phone' => '+351 456 789 123',

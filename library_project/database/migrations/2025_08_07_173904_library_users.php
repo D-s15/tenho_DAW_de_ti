@@ -14,10 +14,10 @@ return new class extends Migration
         schema::create('library_users', function (Blueprint $table) {
             $table->id();
             $table->enum('user_type', ['admin', 'member', 'reader']);
-            $table->string('name');
+            $table->string('username');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('phone')->nullable();
+            $table->string('phone')->unique();
             $table->timestamps();
         });
     }
